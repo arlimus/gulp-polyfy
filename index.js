@@ -15,7 +15,7 @@ module.exports = function() {
 <%= css %>
     </style>
 
-    <%= html %>
+<%= html %>
   </template>
 
   <script>
