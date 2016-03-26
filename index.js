@@ -24,28 +24,45 @@ module.exports = function() {
 </dom-module>
 `)
 
-  return through.obj(function(file, encoding, callback) {
-    var name = file.relative;
-    var cache = path.join(file.path, '..', '.cache', name)
+  var files = {}
 
-    function grab(pattern) {
-      return glob.sync(path.join(file.path, pattern))
-        .concat(glob.sync(path.join(cache, pattern)))
-        .map((x) => { return fs.readFileSync(x, 'utf-8') })
-        .join('')
-    }
+  function collect(file, encoding, callback) {
+    var name = path.basename(file.relative);
+    if(files[name] == null) files[name] = [];
+    files[name].push(file)
+    callback();
+  }
 
+  function grab(base_path, pattern) {
+    return glob.sync(path.join(base_path, pattern))
+      .map(function(x) { return fs.readFileSync(x, 'utf-8') })
+      .join('')
+  }
+
+  function grab_all(files, pattern) {
+    return files.map(function(f) { return grab(f.path, pattern) })
+  }
+
+  function combine(name, files) {
     var res = defaultTemplate({
       name: name,
-      html: grab('*.html'),
-      css: grab('*.css'),
-      js: grab('*.js')
+      html: grab_all(files, '*.html').join('\n'),
+      css: grab_all(files, '*.css').join('\n'),
+      js: grab_all(files, '*.js').join('\n'),
     })
 
-    var fres = new File(file)
+    var fres = new File(files[0])
     fres.path = fres.path + ".html"
     fres.contents = new Buffer(res)
-    this.push(fres);
+    return fres
+  }
+
+  function finish(callback) {
+    for(var key in files) {
+      this.push(combine(key, files[key]))
+    }
     callback();
-  })
+  }
+
+  return through.obj(collect, finish)
 };
