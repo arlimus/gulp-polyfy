@@ -1,0 +1,21 @@
+{
+  "author": {
+    "name": "Dominik Richter"
+  },
+  "dependencies": {
+    "glob": "^7.0.3",
+    "gulp-util": "^3.0.7",
+    "lodash.template": "^4.2.2",
+    "through2": "^2.0.1"
+  },
+  "description": "Construct polymer web components from source folders.",
+  "devDependencies": {},
+  "directories": {},
+  "license": "Apache v2",
+  "main": "index.js",
+  "name": "gulp-polyfy",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "version": "0.0.1"
+}
